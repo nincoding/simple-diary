@@ -19,9 +19,15 @@
  * 이 감정을 상태로 저장해야하기 때문에 emotion 프로퍼티를 상태객체에 추가해준다.
  * select태그도 input과 textarea와 같이 onChange의 e.target.value로 값이 바뀐다.
  * 마지막으로 저장버튼 하나까지 만들어보자.
+ * 
+ * 추가할 기능은 일기 저장하기 버튼을 눌렀을때 입력폼이 예외상황인지 아닌지 판별해야한다.
+ * 따라서 handleSubmit에 기능을 추가해준다.
+ * focus기능을 사용하기 위해선 DOM 요소를 선택할 수 있어야한다.
+ * 리액트에선 useRef를 사용해서 DOM요소를 선택할 수 있다.
+ * focus를 사용해야하는 요소는 2개가 있다. input과 textarea
  */
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import styled from 'styled-components';
 
 // 강의에서는 .DiaryEditor 로 css파일에서 스타일링했지만 스타일드 컴포넌트 연습겸 활용해보기
@@ -80,6 +86,12 @@ const DiaryEditor = () => {
     emotion: 1,
   });
 
+  //focus를 주기위해 useRef를 사용한다. 이런식으로 useRef함수를 호출해서 어떤 반환값을 authorInput 상수에 담아준다.
+  // 그러면 이 상수는 HTML DOM요소를 접근할 수 있는 기능을 제공한다.
+  // 해당 입력폼으로 가서 ref={authorInput} 이런식으로 접근할 수 있도록 설정한다.
+  const authorInput = useRef();
+  const contentInput = useRef();
+
   // 핸들러함수가 event 객체를 받도록 만든다. 이 함수가 input과 textarea의 onChange에 들어간다.
   // 여기에 저장되는 e.target.name는 실제로 바꿔야하는 프로퍼티 key와 같다. input입력하면 author가 textarea입력하면 content가 나옴
   // 따라서 이 핸들러함수안에서 상태변경함수를 실행해서 원래 state를 펼쳐준다.
@@ -98,8 +110,32 @@ const DiaryEditor = () => {
   const handleSubmit = (e) => {
     // 버튼을 눌렀을때 현재 저장된 상태값을 출력해보자.
     // 현재 실시간 상태에 맞춰서 상태에 저장된 값들이 state객체에 잘 담겨있는것을 확인할 수 있다.
-    console.log(state);
-    alert("저장 성공");
+    //console.log(state);
+    //alert("저장 성공");
+
+    // 버튼을 눌렀을때 예외 상황인지 아닌지 판별하자.
+    // state.author.length가 1미만이라면 한 글자도 입력하지 않았다는 뜻이다.
+    // 예외상황에서 alert을 띄워버리는건 좋은 UX가 아니다.
+    // 보통 트랜디한 웹사이트는 alert보단 focus를 사용한다.
+    // focus를 주기위해선 어떤 DOM element에 focus를 줘야하는지 자바스크립트 코드가 알고있어야한다.
+    // 이렇게 DOM 요소를 선택할 수 있는 기능을 리액트는 제공한다.
+    if (state.author.length < 1) {
+      //alert("작성자는 최소 1글자 이상 입력해주세요.");
+      // 이부분에 focus를 줘야한다.
+      // 이런 useRef는 현재 가리키는 값을 current라는 것으로 사용할 수 있게 된다.
+      authorInput.current.focus();
+      return;
+    }
+
+    // 일기본문의 길이가 5글자 미만이라면 예외상황
+    if (state.content.length < 5) {
+      //alert("일기 본문은 최소 5글자 이상 입력해주세요.");
+      // 이부분에 focus를 줘야한다.
+      contentInput.current.focus();
+      return;
+    }
+
+    alert("저장 성공!");
   }
 
   return (
@@ -109,6 +145,7 @@ const DiaryEditor = () => {
       <div>
 
         <AuthorInput
+          ref={authorInput}
           name='author'
           value={state.author} 
           onChange={
@@ -140,6 +177,7 @@ const DiaryEditor = () => {
       </div>
       <div>
         <ContentTextarea
+          ref={contentInput}
           name='content'
           value={state.content} 
           onChange={
