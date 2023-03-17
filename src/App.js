@@ -44,10 +44,25 @@ function App() {
     setData([newItem, ...data]);
   }
 
+  // Delete기능 구현을 위한 함수 - DiaryItem에서 delete버튼 클릭시 App의 data state가 뺀 값으로 변경되어야한다.
+  // 어떤 Id를 가지고 있는지 App에서는 모르기때문에 전달을 받아준다.
+  // DiaryItem에서 이 onDelete함수를 호출할 수 있어야한다. 즉, DiaryItem에 이 함수를 props로 전달해줘야 하는데 DiaryItem의 부모인 DiaryList에 전달해준다.
+
+  const onDelete = (targetId) => {
+    // targetId를 제외한 새로운 배열을 만들어줘서 setData함수에 전달해줘서 data 배열을 바꿔줘야한다.
+    console.log(`${targetId}가 삭제되었습니다.`);
+    // 원래 data 리스트에서 filter를 해준다.
+    // 해당 아이디를 제외한 새로운 배열만 남게된다.
+    const newDiaryList = data.filter((it) => it.id !== targetId);
+    //console.log(newDiaryList);
+    // 이렇게 만들어진 새로운 일기리스트를 setData에 전달해주면 삭제가 완료된다.
+    setData(newDiaryList);
+  }
+
   return (
     <div className="App">
       <DiaryEditor onCreate={onCreate}/>
-      <DiaryList diaryList={data} />
+      <DiaryList diaryList={data} onDelete={onDelete}/>
     </div>
   );
 }

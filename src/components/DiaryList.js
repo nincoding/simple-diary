@@ -23,9 +23,11 @@ const DiaryListH2 = styled.h2`
  * CRUD의 기능들까지 다 이 map안에 만들어주게되면 에러가 날 확률이 굉장히 높기때문에
  * DiaryList안에 list들을 렌더링해주는 코드들을 별도의 컴포넌트로 분할 시켜줘야한다. (아이템들 틀에 맞춰서 찍어내는 컴포넌트)
  * 
+ * onDelete함수를 전달받아서 DiaryItem한테 전달해준다.
+ * 이런걸 props 드릴링이라고 한다.
  */
 
-const DiaryList = ({ diaryList }) => {
+const DiaryList = ({ diaryList, onDelete }) => {
 
   // console로 확인해보면 일기 데이터가 잘 출력된다.
   // 전달받은 데이터가 배열이기 때문에 length를 이용해서 diaryList.length와 같이 데이터의 개수를 출력할 수 있다.
@@ -53,7 +55,9 @@ const DiaryList = ({ diaryList }) => {
        // 이 DiaryList컴포넌트가 렌더링하는 자식이 DiaryItem 컴포넌트가 되도록 수정해준다.
        // 이 DiaryItem은 일기를 모두 받아서 렌더링해야되고 list의 아이템이기 때문에 일단 key를 it.id로 전달해준다.
        // 그리고 스프레드 연산자를 통해서 it이 가지고 있는 모든 데이터들을 전달해준다.
-        diaryList.map((it) => <DiaryItem key={it.id} {...it} />
+
+       // Delete기능 구현을 위해 onDelete함수는 2다리를 거쳐서 내려갔다.
+        diaryList.map((it) => <DiaryItem key={it.id} {...it} onDelete={onDelete}/>
         /*
           <div key={it.id}>
             <div >작성자 : {it.author}</div>
