@@ -25,6 +25,9 @@
  * focus기능을 사용하기 위해선 DOM 요소를 선택할 수 있어야한다.
  * 리액트에선 useRef를 사용해서 DOM요소를 선택할 수 있다.
  * focus를 사용해야하는 요소는 2개가 있다. input과 textarea
+ * 
+ * Create 기능구현을 위해 App에서 props로 onCreate라는 상태변화함수를 전달받는다.
+ * handleSubmit이라는 이벤트핸들러 함수가 실행될때 상태를 저장했으므로 이 함수를 다시 수정해준다.
  */
 
 import { useState, useRef } from 'react';
@@ -66,7 +69,8 @@ const SubmitButton = styled.button`
   cursor: pointer;
 `;
 
-const DiaryEditor = () => {
+// App에서 만들어준 상태변화함수인 onCreate함수를 전달받는다.
+const DiaryEditor = ({onCreate}) => {
 
   // 작성자로부터 state를 받는다. 초기값에는 입력을 안한 상태이니까 공백 문자열을 넣어준다.
   // input의 value로 해당 state를 props로 전달한다. 그럼 아무리 입력해도 input의 값이 바뀌지 않는다.
@@ -135,7 +139,18 @@ const DiaryEditor = () => {
       return;
     }
 
+    // 여기에서 props로 전달받은 onCreate를 호출하면된다.
+    // 상태변화값에 현재상태의 작성자 내용, 감정점수를 넣어서 저장해준다.
+    onCreate(state.author, state.content, state.emotion);
     alert("저장 성공!");
+
+    // 서브밋 버튼을 눌러서 일기데이터 추가에 성공해서 출력까지 했지만 입력폼 데이터는 그대로 남아있다.
+    // 일기를 성공적으로 저장했다면 입력폼 상태를 초기화시켜준다.
+    setState({
+      author: "",
+      content: "",
+      emotion: 1,
+    })
   }
 
   return (

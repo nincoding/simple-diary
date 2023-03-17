@@ -29,7 +29,7 @@ const DiaryList = ({ diaryList }) => {
 
   // console로 확인해보면 일기 데이터가 잘 출력된다.
   // 전달받은 데이터가 배열이기 때문에 length를 이용해서 diaryList.length와 같이 데이터의 개수를 출력할 수 있다.
-  console.log(diaryList);
+  //console.log(diaryList);
 
   return (
     <DiaryListWrap>
