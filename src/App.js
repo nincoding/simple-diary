@@ -124,29 +124,46 @@ function App() {
   // DiaryItem에서 이 onDelete함수를 호출할 수 있어야한다. 즉, DiaryItem에 이 함수를 props로 전달해줘야 하는데 DiaryItem의 부모인 DiaryList에 전달해준다.
 
   // Delete는 취소인데, remove라고 해야 삭제하기로 뜻이 더 직관적일 것 같아서 함수명을 바꿔준다.
-  const onRemove = (targetId) => {
+
+  // 최적화를 위해 useCallback으로 묶어준다음 의존성배열에 빈배열을 넣어준다.
+  const onRemove = useCallback((targetId) => {
     // targetId를 제외한 새로운 배열을 만들어줘서 setData함수에 전달해줘서 data 배열을 바꿔줘야한다.
     //console.log(`${targetId}가 삭제되었습니다.`);
     // 원래 data 리스트에서 filter를 해준다.
     // 해당 아이디를 제외한 새로운 배열만 남게된다.
-    const newDiaryList = data.filter((it) => it.id !== targetId);
+    
+    //const newDiaryList = data.filter((it) => it.id !== targetId);
     //console.log(newDiaryList);
     // 이렇게 만들어진 새로운 일기리스트를 setData에 전달해주면 삭제가 완료된다.
-    setData(newDiaryList);
-  }
+
+    // 이 setData에 함수형으로 업데이트하도록 지시해야하는데 newDiaryList가 위에서 업데이트 되고있다.
+    //setData(newDiaryList); 따라서 아래와같이 수정해줘야 한다.
+    // setData에 전달하는 파라미터 data에 최신 state가 전달되기 때문이다.
+    // 최신 data를 사용하기 위해서는 함수형 업데이트의 인자부분을 사용해주어야 한다.
+    // 그리고 리턴부분의 데이터를 사용해야 업데이트가 된다.
+    setData(data => data.filter((it) => it.id !== targetId));
+  }, [])
 
   // prop으로 전달되어서 DiaryItem에서 사용될 함수이다. 매개변수로 무엇을 어떻게 수정할지를 받아와야한다.
   // 어떤 아이디를 가진, 어떻게 content를 변경할 건지 두 개의 매개변수를 사용해준다. (수정대상 아이디와 수정한 콘텐츠의 내용)
   // 결론적으로 이 onEdit함수는 DiaryItem의 수정완료버튼을 클릭했을때 호출되어야 한다. (먼저 DiaryItem의 부모인 DiaryList로 넣어준다.)
-  const onEdit = (targetId, newContent) => {
+  
+  // 이 친구도 똑같이 useCallback에 빈 배열을 디펜던시에 넣어준다.
+  const onEdit = useCallback((targetId, newContent) => {
     // data에 map을 돌려서 각각 모든 요소들이 targetId와 일치하는지 검사한다. (일치하는 아이디를 갖는 원소는 딱 하나밖에 없다.)
     // 아이디가 일치하게 되면 해당 원소는 수정대상이 되는 원소가 된다.
     // 일치하는 경우 content프로퍼티의 값을 newContent의 값으로 업데이트 시켜주면 된다.
     // 아이디가 일치하지 않으면 수정대상이 아니기 때문에 it을 반환하게 하면 수정이 되게 된다.
+    /*
     setData(
       data.map((it) => it.id === targetId ? { ...it, content: newContent,} : it )
     );
-  }
+    함수형으로 업데이트 시켜준다.
+    */
+    setData((data) =>
+      data.map((it) => it.id === targetId ? { ...it, content: newContent,} : it )
+    );
+  }, []);
 
   // 감정의 기분을 구분할 수 있는 함수를 만든다. 데이터 분석이라는 함수
 

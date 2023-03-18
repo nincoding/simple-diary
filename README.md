@@ -71,7 +71,7 @@ npm i styled-components
 
 ### 🍀 useMemo, useCallback을 이용한 최적화하기
 
-- [ ] React App 성능 최적화와 도구 사용
+- [x] React App 성능 최적화와 도구 사용
 
   - React Developer Tools RDT 개발자 도구 사용하기
   - React Developer Tools를 이용해 어떤 컴포넌트가 최적화의 대상인지 찾아낸다.
@@ -81,6 +81,7 @@ npm i styled-components
   - 현재 일기 데이터를 분석하는 함수를 제작하고, 해당 함수가 일기 데이터의 길이가 변화하지 않을때 값을 다시 계산하지 않도록 구현
   - React.memo를 이용한 컴포넌트 재사용
   - useCallback을 이용한 함수 재사용
+  - 아이템 리렌더링 최적화하기
 
 - React 컴포넌트 트리에 전역 데이터 공급하기
 

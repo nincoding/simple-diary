@@ -18,7 +18,7 @@
  */
 
 import styled from "styled-components";
-import { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 const DiaryItemWrap = styled.div`
   background-color: rgb(240, 240, 240);
@@ -53,7 +53,22 @@ const EditForm = styled.textarea`
 
 // DiaryItem에서는 삭제기능을 위해 onDelete를 props로 또 받아준다.
 // 위에서 내려받은 상태변화함수인 onEdit을 받은 다음에 수정완료 버튼을 클릭했을때 실행할 수 있도록 한다.
+
+//  DiaryItem 컴포넌트를 최적화해보자.
+// prop으로 전달받고 있는 것 중 onRemove, onEdit은 함수이고 나머지는 데이터이다.
+// 이 중 일기 아이템을 변화할 수 있는 content를 빼고는 author, created_date, emotion, id는 변화할 수 없는 데이터이다.
+// onRemove, onEdit에 집중해서 최적화를 해보자.
+// 가장 먼저 최적화의 시작은 React.memo로 컴포넌트를 묶어주는 것이다.
+// 그 다음 useEffect를 활용해서 어떤 아이템들이 리렌더가 일어나고 있는지 확인해본다.
+// DiaryItem은 React.memo로 감싼다고 최적화가 이루어지는 컴포넌트가 아니다.
+// 왜냐하면 onRemove, onEdit는 data state가 변화하면 재생성될 수 밖에 없는 함수들이다.
+// 따라서 App 컴포넌트에서 위 함수들을 최적화해줘야한다.
 const DiaryItem = ({ author, content, created_date, emotion, id, onRemove, onEdit }) => {
+
+  useEffect(() => {
+    // 19번째부터 0번 아이템까지 모두 다 렌더링 되고 있는 문제 상황을 발견했다.
+    console.log(`${id}번째 아이템 렌더`);
+  })
 
   // 수정하기 버튼을 눌렀을때 상태를 저장하고 있을 state를 만든다.
   // 이 isEdit의 상태는 기본값으로 false를 넣어준다.
@@ -181,4 +196,4 @@ const DiaryItem = ({ author, content, created_date, emotion, id, onRemove, onEdi
   )
 }
 
-export default DiaryItem;
+export default React.memo(DiaryItem);

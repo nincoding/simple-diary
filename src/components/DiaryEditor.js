@@ -85,9 +85,12 @@ const DiaryEditor = ({onCreate}) => {
   // prop으로 전달받고 있는 onCreate가 App컴포넌트가 렌더링이 될때마다 계속 다시 만들어져서 계속 렌더링이 발생하고 있는 것이다.
   // 결론적으로 {onCreate}이 함수가 재생성되지 않아야만 DiaryEditor컴포넌트를 React.memo와 함께 최적화할 수 있다.
   // App컴포넌트에서 onCreate함수가 다시 생성되지 않게 만들어주자.
+  /*
+  최적화가 끝났기때문에 콘솔은 지워준다.
   useEffect(() => {
     console.log(`DiaryEditor 렌더`)
   })
+  */
 
   // 작성자로부터 state를 받는다. 초기값에는 입력을 안한 상태이니까 공백 문자열을 넣어준다.
   // input의 value로 해당 state를 props로 전달한다. 그럼 아무리 입력해도 input의 값이 바뀌지 않는다.
