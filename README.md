@@ -71,12 +71,13 @@ npm i styled-components
 
 ### 🍀 useMemo, useCallback을 이용한 최적화하기
 
-- [] React App 성능 최적화와 도구 사용
+- [ ] React App 성능 최적화와 도구 사용
 
   - React Developer Tools RDT 개발자 도구 사용하기
   - useMemo를 이용한 연산 결과 재사용하기
   - 메모이제이션 기법을 적용한 연산최적화
   - 현재 일기 데이터를 분석하는 함수를 제작하고, 해당 함수가 일기 데이터의 길이가 변화하지 않을때 값을 다시 계산하지 않도록 구현
+  - React.memo를 이용한 컴포넌트 재사용
 
 - React 컴포넌트 트리에 전역 데이터 공급하기
 
@@ -263,3 +264,88 @@ React Developer Tools는 Chrome의 확장 도구이다.
 ![](https://velog.velcdn.com/images/ninto_2/post/b1c75132-1a2a-4532-b2d3-763bb80a09c0/image.png)
 
 컴퓨터의 특성에 메모이제이션 기법을 이용해서 프로그래밍을 하다가 만나는 문제를 해결하는 경우가 많다.
+
+### React.memo 최적화
+
+컴포넌트를 재사용할 수 있는 **React.memo**에 대해 알아보자.
+
+**렌더링 상황 이해하기**
+
+![](https://velog.velcdn.com/images/ninto_2/post/0f0de4fa-af1d-4487-916d-83dbc0082d8d/image.png)
+
+CountView와 TextView 컴포넌트를 자식으로 갖는 App에서 상태값을 각각 prop로 전달해주고 있을때 오른쪽 코드를 실행하면 어떻게 렌더링되는지 살펴보자.
+
+![](https://velog.velcdn.com/images/ninto_2/post/0fd7dce4-94c0-49ed-918d-2c382e1e4d48/image.png)
+
+처음으로 `setCount(10);`이 실행되면서 App컴포넌트의 count 값이 바뀌게 되고 state가 업데이트 되었기 때문에 해당 state를 가진 App컴포넌트는 리렌더링된다.
+
+그러면 prop인 count가 바뀌게되고 CountView컴포넌트도 렌더링되게 된다.
+하지만 count prop을 사용하고 있지 않는 TextView 또한 리렌더 되게 된다.
+그 이유는 부모컴포넌트가 리렌더 되면 자식컴포넌트 또한 리렌더 되기때문이다.
+
+이런 상황에서 연산의 낭비가 발생하게 된다. (성능상의 문제)
+
+![](https://velog.velcdn.com/images/ninto_2/post/2d608ab9-fee6-4c3d-b88b-797edf89d943/image.png)
+
+위처럼 자식 컴포넌트들한테 각각 업데이트 조건을 설정해주면 state에 따라 그 state를 사용하지않는 자식 컴포넌트는 리렌더링에서 제외할 수 있게 된다.
+
+이런 기능을 `React.memo`에서 사용할 수 있다. (함수형 컴포넌트에 업데이트 조건 설정)
+
+리액트의 여러가지 기능들을 알아보기 위한 가장 좋은 방법은
+[리액트의 공식문서-React.memo](https://ko.reactjs.org/docs/react-api.html#reactmemo)를 참고하는 방법이다.
+
+> React.memo는 고차 컴포넌트(Higher Order Component)입니다. - 리액트 공식문서
+
+> 고차 컴포넌트(HOC, Higher Order Component)는 컴포넌트를 가져와 새 컴포넌트를 반환하는 함수입니다. (컴포넌트 로직을 재사용하기 위한 React의 고급 기술)
+
+```js
+// 고차컴포넌트
+const EnhancedComponent = higherOrderComponent(WrappedComponent);
+```
+
+```js
+// React.memo 사용법
+const MyComponent = React.memo(function MyComponent(props) {
+  /* props를 사용하여 렌더링 */
+});
+```
+
+컴포넌트가 동일한 props로 동일한 결과를 렌더링해낸다면, React.memo를 호출하고 결과를 메모이징(Memoizing)하도록 래핑하여 경우에 따라 성능 향상을 누릴 수 있습니다.
+
+간단하게 말해서 똑같은 prop을 받으면 다시 컴포넌트를 계산하지 않는다.
+
+즉, React는 컴포넌트를 렌더링하지 않고 마지막으로 렌더링된 결과를 재사용합니다.
+(React.memo로 리렌더링 되지 않았으면 하는 컴포넌트를 감싸주게 되면 prop가 바뀌지 않으면 리렌더링하지 않는 강화된 컴포넌트를 돌려주겠다라는 뜻임 - 물론 자기자신의 state가 바뀌면 리렌더링 된다.)
+
+React.memo는 props 변화에만 영향을 줍니다.
+
+React.memo로 감싸진 함수 컴포넌트 구현에 useState, useReducer 또는 useContext 훅을 사용한다면, 여전히 state나 context가 변할 때 다시 렌더링됩니다.
+
+**자바스크립트의 객체비교**
+
+![](https://velog.velcdn.com/images/ninto_2/post/e71b4d92-a770-4fcf-9203-7ea9316a0f58/image.png)
+
+값과 형태가 같지만 비교결과가 같지 않은이유는 자바스크립트가 객체나 함수, 배열같은 비원시타입을 비교할때 값에 의한 비교가 아닌 주소에 의한 비교를 하기 때문이다. (얕은 비교)
+
+각각 객체를 생성해서 할당하게 되면 고유한 메모리 주소를 가지게 된다.
+얕은 비교라는것은 이 두 객체가 같은 주소에 있느냐를 비교하기 때문에 값이 같더라도 주소가 다르다면 다르다는 결과값을 출력하게 된다.
+
+![](https://velog.velcdn.com/images/ninto_2/post/08f660f9-322c-4147-858b-1ff6549574d1/image.png)
+
+하지만 이런식으로 사용하면 같다고 나오게 된다.
+
+```js
+function MyComponent(props) {
+  /* props를 사용하여 렌더링 */
+}
+function areEqual(prevProps, nextProps) {
+  /*
+  nextProps가 prevProps와 동일한 값을 가지면 true를 반환하고, 그렇지 않다면 false를 반환
+  */
+}
+export default React.memo(MyComponent, areEqual);
+```
+
+React.memo가 두번째인자로 `areEqual`이라는 함수인자를 받는것을 확인할 수 있는데, 이 함수는 이전의 prop와 이후의 prop를 받고 동일한 값이라면 true와 그렇지않다면 false를 반환하는 비교함수로서 사용하기 때문이다.
+
+이 `areEqual`함수를 이용해서 기존의 얕은비교를 하게하지않고 여기에서 코드를 변경하여 깊은비교를 구현한다면 true를 가질때 렌더링하지 않게하고 false를 가질때 렌더링하게 할 수도 있다.

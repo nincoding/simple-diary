@@ -4,6 +4,7 @@ import DiaryList from './components/DiaryList';
 //import dummyData from './data/dummyDate';
 import { useState, useRef, useEffect, useMemo } from 'react';
 //import LifeCycle from './components/LifeCycle';
+//import OptimizeTest from './components/OptimizeTest';
 
 /**
  * 
@@ -27,6 +28,9 @@ import { useState, useRef, useEffect, useMemo } from 'react';
  * 감정점수 분석함수는 일기를 수정할땐 굳이 사용될 필요가 없다. 감정점수는 그대로이기 때문이다.
  * 이때 메모이제이션기법을 사용해볼 수 있다. return을 가지고 있는 함수를 메모이제이션을 해서 최적화하기 위해선 useMemo를 사용하면된다.
  * 이런식으로 데이터의 길이가 변하지 않는다면 불필요한 렌더링없이 최적화를 할 수 있게 된다.
+ * 
+ * React.memo를 이용해서 재사용 컴포넌트사용으로 렌더링 최적화를 구현해보자.
+ * OptimizeTest 컴포넌트를 만들어서 App에서 import해준다.
  */
 
 // comment API를 사용하기 위한 URL
@@ -110,7 +114,7 @@ function App() {
   // Delete는 취소인데, remove라고 해야 삭제하기로 뜻이 더 직관적일 것 같아서 함수명을 바꿔준다.
   const onRemove = (targetId) => {
     // targetId를 제외한 새로운 배열을 만들어줘서 setData함수에 전달해줘서 data 배열을 바꿔줘야한다.
-    console.log(`${targetId}가 삭제되었습니다.`);
+    //console.log(`${targetId}가 삭제되었습니다.`);
     // 원래 data 리스트에서 filter를 해준다.
     // 해당 아이디를 제외한 새로운 배열만 남게된다.
     const newDiaryList = data.filter((it) => it.id !== targetId);
@@ -147,7 +151,7 @@ function App() {
     // 처음 App이 Mount될때 data값으로 빈배열을 가질때 그 순간 getDiaryAnalysis를 한번 호출하게된다. 0 0 0 NaN
     // 그 다음 data값이 바뀌게 될때 즉, 리렌더될때 getDiaryAnalysis 다시 호출하게 되고, 값이 바뀐다.
 
-    console.log('일기분석 시작');
+    //console.log('일기분석 시작');
 
     // 기분이 좋은 일기가 몇 개있는지 세는 상수를 만든다.
     // data에 filter를 이용해서 emotion이 3이상인 것들의 배열의 길이를 구하면된다.
@@ -174,6 +178,7 @@ function App() {
   return (
     <div className="App">
       {/*<LifeCycle />*/}
+      {/*<OptimizeTest />*/}
       <DiaryEditor onCreate={onCreate}/>
       <div>전체일기 : {data.length} </div>
       <div>기분 좋은 일기 개수: {goodCount} </div>
