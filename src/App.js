@@ -2,7 +2,7 @@ import './App.css';
 import DiaryEditor from './components/DiaryEditor';
 import DiaryList from './components/DiaryList';
 //import dummyData from './data/dummyDate';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 //import LifeCycle from './components/LifeCycle';
 
 /**
@@ -19,6 +19,14 @@ import { useState, useRef, useEffect } from 'react';
  * 수정완료 버튼을 눌렀을때 변경된 데이터를 data content에 넣어주기 위해서 이벤트핸들러함수를 하나 만들어주자.
  * 
  * API 호출을 하기 위해 해당 API의 URL주소와 함께 호출할 함수를 만들어준다.
+ * 
+ * 메모이제이션이 필요한 상황을 만들어보자.
+ * 일기장 프로젝트에는 감정점수를 기록할 수 있는 기능이 있다.
+ * 오늘의 상황을 위해 3 미만인 1과 2는 감정이 좋지않음을 3,4,5는 감정이 좋음을 나타낸다고 설정해보자.
+ * App컴포넌트에 지금 현재 기분이 좋은 일기가 몇개있는지 카운트해보고, 기분이 안좋은 일기는 몇개있는지, 기분이 좋은일기의 비율은 어떻게 되는지를 구현한다.
+ * 감정점수 분석함수는 일기를 수정할땐 굳이 사용될 필요가 없다. 감정점수는 그대로이기 때문이다.
+ * 이때 메모이제이션기법을 사용해볼 수 있다. return을 가지고 있는 함수를 메모이제이션을 해서 최적화하기 위해선 useMemo를 사용하면된다.
+ * 이런식으로 데이터의 길이가 변하지 않는다면 불필요한 렌더링없이 최적화를 할 수 있게 된다.
  */
 
 // comment API를 사용하기 위한 URL
@@ -124,11 +132,53 @@ function App() {
     );
   }
 
+  // 감정의 기분을 구분할 수 있는 함수를 만든다. 데이터 분석이라는 함수
+
+  // 이 기억해놓고 싶은 함수를 useMemo로 감싸주면 된다.
+  // 그러면 useMemo안에 콜백함수로 기능을 실행하는 모습이 된다.
+  // 두번째인자로 배열을 전달해야는는데 이 배열은 의존성배열과 같다.
+  // 이 배열안에 data.length를 넣어놓게 되면 data.length가 변화할때만 이 useMemo의 첫번째 콜백함수가 다시 실행되게 된다.
+  // 이렇게 useMemo로 감싸서 사용하게 되면 getDiaryAnalysis는 더이상 함수가 아니게된다.
+  // 그이유는 getDiaryAnalysis가 리턴하는 값을 리턴하게 된다. (값을 리턴)
+
+  // 정리하자면, 함수가 어떤 값을 리턴하고 있는데 그 리턴까지의 연산을 최적화하고 싶다면 디펜던시 array에 어떤 값이 변경될때만 수행하도록 명시해준다면 이 함수를 값처럼 사용해서 연산최적화를 할 수 있다.
+  const getDiaryAnalysis = useMemo(() => {
+    // 새로고침을 눌러보면 일기분석함수가 2번 동작하는것을 확인할 수 있다.
+    // 처음 App이 Mount될때 data값으로 빈배열을 가질때 그 순간 getDiaryAnalysis를 한번 호출하게된다. 0 0 0 NaN
+    // 그 다음 data값이 바뀌게 될때 즉, 리렌더될때 getDiaryAnalysis 다시 호출하게 되고, 값이 바뀐다.
+
+    console.log('일기분석 시작');
+
+    // 기분이 좋은 일기가 몇 개있는지 세는 상수를 만든다.
+    // data에 filter를 이용해서 emotion이 3이상인 것들의 배열의 길이를 구하면된다.
+    const goodCount = data.filter((it) => it.emotion >= 3).length;
+
+    // 기분이 나쁜 일기는 일기의 전체 개수에서 좋은일기의 개수를 빼주면된다.
+    const badCount = data.length - goodCount;
+
+    // 좋은 일기의 비율을 구하는건 좋은일기의 개수에서 전체 일기의 개수 나눈다음 100을 곱해주면된다.
+    const goodRatio = Math.round((goodCount / data.length) * 100);
+
+    // 위 3개의 데이터를 객체로 반환해준다.
+    return { goodCount, badCount, goodRatio };
+  }, [data.length]);
+
+  // 이렇게 만든 지역함수인 getDiaryAnalysis를 App컴포넌트에서 return전에 호출해준다.
+  // 이 함수를 호출한 결과값을 객체로 반환해주므로, 비구조화할당으로 받아온다.
+  // App컴포넌트가 렌더될때마다 getDiaryAnalysis를 호출해주는 이 부분 역시 다시 호출된다.
+  //const { goodCount, badCount, goodRatio } = getDiaryAnalysis();
+  // useMemo를 사용했다면 이런식으로 값으로 사용해야 한다.
+  const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
+
   // LifeCycle 실험을 위해 가장위해 LifeCycle 컴포넌트를 렌더해준다.
   return (
     <div className="App">
       {/*<LifeCycle />*/}
       <DiaryEditor onCreate={onCreate}/>
+      <div>전체일기 : {data.length} </div>
+      <div>기분 좋은 일기 개수: {goodCount} </div>
+      <div>기분 나쁜 일기 개수: {badCount} </div>
+      <div>기분 좋은 일기 비율 : {goodRatio} </div>
       <DiaryList diaryList={data} onRemove={onRemove} onEdit={onEdit}/>
     </div>
   );

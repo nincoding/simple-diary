@@ -74,6 +74,9 @@ npm i styled-components
 - [] React App 성능 최적화와 도구 사용
 
   - React Developer Tools RDT 개발자 도구 사용하기
+  - useMemo를 이용한 연산 결과 재사용하기
+  - 메모이제이션 기법을 적용한 연산최적화
+  - 현재 일기 데이터를 분석하는 함수를 제작하고, 해당 함수가 일기 데이터의 길이가 변화하지 않을때 값을 다시 계산하지 않도록 구현
 
 - React 컴포넌트 트리에 전역 데이터 공급하기
 
@@ -243,3 +246,20 @@ React Developer Tools는 Chrome의 확장 도구이다.
 
 이런식으로 개발자도구에 들어가서 Component로 확인할 수 있다.
 각각의 컴포넌트가 어떤 데이터와 props, state를 가지고 있는지 직관적으로 확인할 수 있다.
+
+<br>
+
+---
+
+## 📌 메모이제이션 기법 (Memoization)
+
+![](https://velog.velcdn.com/images/ninto_2/post/66064c1c-79cd-4f28-bc1d-19c6a7b96b31/image.png)
+
+메모이제이션이라는 건 프로그래밍 기법에 가까운 이야기이다.
+'메모를 해둔다'라는 뜻으로, 이미 계산해본 결과를 기억해 두었다가 똑같은 계산을 시키면 답만 반환하는 방법을 의미한다.
+
+답을 찾은적이 있고, 기억해두었다면 다시 연산을 할 필요없이 기억해두었던 답을 반환하기만 하면 된다.
+
+![](https://velog.velcdn.com/images/ninto_2/post/b1c75132-1a2a-4532-b2d3-763bb80a09c0/image.png)
+
+컴퓨터의 특성에 메모이제이션 기법을 이용해서 프로그래밍을 하다가 만나는 문제를 해결하는 경우가 많다.
