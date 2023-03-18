@@ -2,8 +2,8 @@ import './App.css';
 import DiaryEditor from './components/DiaryEditor';
 import DiaryList from './components/DiaryList';
 //import dummyData from './data/dummyDate';
-import { useState, useRef } from 'react';
-import LifeCycle from './components/LifeCycle';
+import { useState, useRef, useEffect } from 'react';
+//import LifeCycle from './components/LifeCycle';
 
 /**
  * 
@@ -17,7 +17,12 @@ import LifeCycle from './components/LifeCycle';
  * 
  * 수정하기 기능을 추가하기 위해선, 먼저 각각의 아이템들이 수정하기 버튼을 포함하고 있고, 그 버튼을 클릭했을때 내용을 수정할 수 있는 입력폼이 나와야한다.
  * 수정완료 버튼을 눌렀을때 변경된 데이터를 data content에 넣어주기 위해서 이벤트핸들러함수를 하나 만들어주자.
+ * 
+ * API 호출을 하기 위해 해당 API의 URL주소와 함께 호출할 함수를 만들어준다.
  */
+
+// comment API를 사용하기 위한 URL
+// https://jsonplaceholder.typicode.com/comments
 
 function App() {
 
@@ -27,6 +32,46 @@ function App() {
   // 처음에는 0번 인덱스부터 시작하도록 설정해준다.
   // dataId.current는 어떤 DOM도 선택하지않고 그냥 0이라는 값을 가리키게 되어있다.
   const dataId = useRef(0);
+
+  // API를 호출하기 위한 함수
+  // 자바스크립트의 내장함수인 fetch를 await 키워드와 함께 사용할 것이기 때문에 함수를 async로 만든다.
+  // 이 getData함수가 promise를 반환하는 비동기함수로 만들어준다.
+  // App컴포넌트가 Mount되자마자 호출을 해보자.
+  const getData = async () => {
+    // 이 res 응답객체안에는 fetch안에 API의 URL을 넣어준다.
+    // fetch의 결과값을 then으로 res안에 넣어준다. 넣어줄땐 json을 통해서 json값들만 뽑아온다.
+    const res = await fetch('https://jsonplaceholder.typicode.com/comments')
+      .then((res) => res.json());
+    
+    //console.log(res);
+    // 응답받아온 500개의 객체배열에서 너무 많으니까 20개만 쓰도록 하자.
+    // 이 배열에서 map을 사용해서 새로운 배열을 만들어서 initData에 넣어준다.
+    // 감정점수는 랜덤으로 1부터 5까지 설정해준다.
+    // Math.random() * 5는 0부터 4까지의 랜덤 난수를 생성한다.(소수점자리가 나올수있음) 그 다음 Math.floor를 해줘서 정수로 바꿔준다.
+    // 0부터 4까지 랜덤으로 나오게 되므로 + 1 을 해줘서 1부터 5까지 랜덤으로 정할 수 있도록 만들었다.
+    // 생성시점은 현재 시간을 기준으로 ms로 받아준다.
+    // id는 dataId에 current값으로 한다음 1을 증가시켰는데 바로 리턴되기때문에 후위연산자를 사용해준다.
+    const initData = res.slice(0, 20).map((it) => {
+      return {
+        author : it.email,
+        content : it.body,
+        emotion : Math.floor(Math.random() * 5) + 1,
+        created_date : new Date().getTime(),
+        id : dataId.current++,
+      }
+    }) 
+    
+    // 위처럼 생성한 데이터를 setData를 통해 data의 상태값으로 넣어주게되면 API로 받아온 데이터를 렌더할 수 있게된다.
+    setData(initData);
+  }
+
+  // 두번째 인자에 빈배열을 설정하면 Mount되는 시점에 콜백이 실행된다.
+  // 콘솔에 호출한 500개를 받아온걸 확인할 수 있다.
+  // 이 호출해서 받아온 결과값을 일기데이터의 기초 초기값으로 사용해보자.
+  // body는 일기데이터의 본문으로, email은 작성자로 사용해보자.
+  useEffect(() => {
+    getData();
+  }, []);
 
   // data 상태에 새로운 일기를 추가하는 함수를 만들어준다.
   // 이 일기데이터를 추가할 수 있는 함수를 DiaryEditor에 props로 전달해준다.
@@ -82,7 +127,7 @@ function App() {
   // LifeCycle 실험을 위해 가장위해 LifeCycle 컴포넌트를 렌더해준다.
   return (
     <div className="App">
-      <LifeCycle />
+      {/*<LifeCycle />*/}
       <DiaryEditor onCreate={onCreate}/>
       <DiaryList diaryList={data} onRemove={onRemove} onEdit={onEdit}/>
     </div>

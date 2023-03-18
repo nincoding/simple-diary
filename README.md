@@ -51,6 +51,9 @@
 
   - 리액트의 생명주기 (Lifecycle)을 관리하고 제어하기
   - useEffect를 사용해서 LifeCycle 제어하기
+  - 리액트에서 API 호출하기
+  - useEffect를 사용해서 컴포넌트 Mount 시점에 API를 호출하고 해당 API의 결과값을 일기 데이터의 초기값으로 이용한다.
+  - 자바스크립트의 내장함수 fetch를 사용해서 API를 호출해본다.
 
 - React App 성능 최적화와 도구 사용
 - React 컴포넌트 트리에 전역 데이터 공급하기
@@ -181,3 +184,37 @@ React Hooks까지 사용해가면서 함수형 컴포넌트를 사용하는 이�
 첫번째 파라미터로는 callback함수와 두번째 파라미터는 **Dependency Array**를 전달한다.
 
 Dependency Array(의존성 배열)은 배열 내에 들어있는 값이 변화하면 첫번째 파라미터인 콜백함수가 다시 실행된다.
+
+<br>
+
+---
+
+## 리액트에서 API 사용하기
+
+해당 프로젝트에서는 무료로 API를 이용할 수 있는 [JSONPlaceholder](https://jsonplaceholder.typicode.com/)사이트를 이용한다.
+
+![](https://velog.velcdn.com/images/ninto_2/post/3b15ebb0-9bd3-4ccc-8bbd-2a8eee0331d7/image.png)
+
+Resources를 제공해주는 tap에서 어떤 API서비스로 자원을 가져다 쓸 수 있는지 제공해주었다.
+일기데이터와 가장 비슷해보이는 comments에 들어가보면 JSON 형태로 생긴 객체배열이 나타난다.
+
+```js
+//  comments 객체배열의 형태
+[
+  {
+    "postId": 1,
+    "id": 1,
+    "name": "id labore ex et quam laborum",
+    "email": "Eliseo@gardner.biz",
+    "body": "laudantium enim quasi est quidem magnam voluptate ipsam eos\ntempora quo necessitatibus\ndolor quam autem quasi\nreiciendis et nam sapiente accusantium"
+  },
+  ...
+]
+```
+
+API를 호출하려면 주소를 알아야한다.
+comment tap을 클릭해서 접속한 URL 주소를 이용한다.
+
+```
+https://jsonplaceholder.typicode.com/comments
+```
