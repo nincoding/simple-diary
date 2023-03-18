@@ -11,6 +11,11 @@ import { useState, useRef } from 'react';
  * dummyData대신에 diaryList에 일단 빈배열을 전달해준다.
  * 전역적으로 가장 위인 App에서 데이터를 관리할 state를 만들어준다.
  * diaryList에 초기설정한 state인 data를 props로 전달한다.
+ * 전역으로 사용하는 함수명 하나를 바꾸기 위해선 사용하고 있는 컴포넌트들에 가서 똑같이 수정해줘야한다. (onDelete -> onCreate)
+ * 이렇게 이름을 수정하는 방법은 다른 방법이 있지만, 지금은 불편하게 하나하나 수정해야하는 느낌을 기억해놓자.
+ * 
+ * 수정하기 기능을 추가하기 위해선, 먼저 각각의 아이템들이 수정하기 버튼을 포함하고 있고, 그 버튼을 클릭했을때 내용을 수정할 수 있는 입력폼이 나와야한다.
+ * 수정완료 버튼을 눌렀을때 변경된 데이터를 data content에 넣어주기 위해서 이벤트핸들러함수를 하나 만들어주자.
  */
 
 function App() {
@@ -48,7 +53,8 @@ function App() {
   // 어떤 Id를 가지고 있는지 App에서는 모르기때문에 전달을 받아준다.
   // DiaryItem에서 이 onDelete함수를 호출할 수 있어야한다. 즉, DiaryItem에 이 함수를 props로 전달해줘야 하는데 DiaryItem의 부모인 DiaryList에 전달해준다.
 
-  const onDelete = (targetId) => {
+  // Delete는 취소인데, remove라고 해야 삭제하기로 뜻이 더 직관적일 것 같아서 함수명을 바꿔준다.
+  const onRemove = (targetId) => {
     // targetId를 제외한 새로운 배열을 만들어줘서 setData함수에 전달해줘서 data 배열을 바꿔줘야한다.
     console.log(`${targetId}가 삭제되었습니다.`);
     // 원래 data 리스트에서 filter를 해준다.
@@ -59,10 +65,23 @@ function App() {
     setData(newDiaryList);
   }
 
+  // prop으로 전달되어서 DiaryItem에서 사용될 함수이다. 매개변수로 무엇을 어떻게 수정할지를 받아와야한다.
+  // 어떤 아이디를 가진, 어떻게 content를 변경할 건지 두 개의 매개변수를 사용해준다. (수정대상 아이디와 수정한 콘텐츠의 내용)
+  // 결론적으로 이 onEdit함수는 DiaryItem의 수정완료버튼을 클릭했을때 호출되어야 한다. (먼저 DiaryItem의 부모인 DiaryList로 넣어준다.)
+  const onEdit = (targetId, newContent) => {
+    // data에 map을 돌려서 각각 모든 요소들이 targetId와 일치하는지 검사한다. (일치하는 아이디를 갖는 원소는 딱 하나밖에 없다.)
+    // 아이디가 일치하게 되면 해당 원소는 수정대상이 되는 원소가 된다.
+    // 일치하는 경우 content프로퍼티의 값을 newContent의 값으로 업데이트 시켜주면 된다.
+    // 아이디가 일치하지 않으면 수정대상이 아니기 때문에 it을 반환하게 하면 수정이 되게 된다.
+    setData(
+      data.map((it) => it.id === targetId ? { ...it, content: newContent,} : it )
+    );
+  }
+
   return (
     <div className="App">
       <DiaryEditor onCreate={onCreate}/>
-      <DiaryList diaryList={data} onDelete={onDelete}/>
+      <DiaryList diaryList={data} onRemove={onRemove} onEdit={onEdit}/>
     </div>
   );
 }

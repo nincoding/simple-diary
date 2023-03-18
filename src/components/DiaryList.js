@@ -25,9 +25,10 @@ const DiaryListH2 = styled.h2`
  * 
  * onDelete함수를 전달받아서 DiaryItem한테 전달해준다.
  * 이런걸 props 드릴링이라고 한다.
+ * App에서 전달받은 onEdit함수를 받고, DiaryItem에 전달해준다.
  */
 
-const DiaryList = ({ diaryList, onDelete }) => {
+const DiaryList = ({ diaryList, onRemove, onEdit }) => {
 
   // console로 확인해보면 일기 데이터가 잘 출력된다.
   // 전달받은 데이터가 배열이기 때문에 length를 이용해서 diaryList.length와 같이 데이터의 개수를 출력할 수 있다.
@@ -57,7 +58,7 @@ const DiaryList = ({ diaryList, onDelete }) => {
        // 그리고 스프레드 연산자를 통해서 it이 가지고 있는 모든 데이터들을 전달해준다.
 
        // Delete기능 구현을 위해 onDelete함수는 2다리를 거쳐서 내려갔다.
-        diaryList.map((it) => <DiaryItem key={it.id} {...it} onDelete={onDelete}/>
+        diaryList.map((it) => <DiaryItem key={it.id} {...it} onRemove={onRemove} onEdit={onEdit}/>
         /*
           <div key={it.id}>
             <div >작성자 : {it.author}</div>
