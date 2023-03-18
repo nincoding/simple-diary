@@ -2,11 +2,23 @@
 
 리액트로 만드는 간단한 일기장
 
+## 사용한 명령어
+
+```js
+// create-react-app으로 프로젝트 생성
+npx create-react-app diary
+
+// 스타일드 컴포넌트 인스톨
+npm i styled-components
+```
+
 <br>
 
 ---
 
 ## 📌 간단한 프로젝트를 통해 React의 사용법을 배우기
+
+### 🍀 기본적인 리액트 사용법과 useState, useRef 사용하기
 
 - [x] 사용자 입력 및 배열 리스트 처리하기
 
@@ -22,7 +34,7 @@
   - 정해진 길이보단 작은 길이라면 해당 폼을 다시 focus하는 기능 추가
   - useRef 사용하기
 
-### 📌 CRUD 기능 구현
+### 🍀 CRUD 기능 구현
 
 - [x] React에서 리스트 사용하기 (Read)
 
@@ -47,6 +59,8 @@
   - 수정하기 버튼은 각각의 아이템들에 들어가야 한다.
   - 수정폼 활성화의 상태를 불리언으로 관리한다.
 
+### 🍀 useEffect를 이용한 LifeCycle 제어하기
+
 - [x] React Lifecycle 과 API
 
   - 리액트의 생명주기 (Lifecycle)을 관리하고 제어하기
@@ -55,28 +69,19 @@
   - useEffect를 사용해서 컴포넌트 Mount 시점에 API를 호출하고 해당 API의 결과값을 일기 데이터의 초기값으로 이용한다.
   - 자바스크립트의 내장함수 fetch를 사용해서 API를 호출해본다.
 
-- React App 성능 최적화와 도구 사용
+### 🍀 useMemo, useCallback을 이용한 최적화하기
+
+- [] React App 성능 최적화와 도구 사용
+
+  - React Developer Tools RDT 개발자 도구 사용하기
+
 - React 컴포넌트 트리에 전역 데이터 공급하기
 
 <br>
 
 ---
 
-## 사용한 명령어
-
-```js
-// create-react-app으로 프로젝트 생성
-npx create-react-app diary
-
-// 스타일드 컴포넌트 인스톨
-npm i styled-components
-```
-
-<br>
-
----
-
-## 컴포넌트와 데이터 구조파악하기
+## 📌 컴포넌트와 데이터 구조파악하기
 
 ![](https://velog.velcdn.com/images/ninto_2/post/6993802c-d110-4734-bcc6-ecac5ac12c99/image.png)
 
@@ -122,7 +127,7 @@ App 컴포넌트가 일기 데이터를 배열 형식의 state로 가지고 있�
 
 ---
 
-## 리액트의 Lifecyle 이해하기
+## 📌 리액트의 Lifecyle 이해하기
 
 > Lifecyle = 생애주기(생명주기)
 
@@ -189,7 +194,7 @@ Dependency Array(의존성 배열)은 배열 내에 들어있는 값이 변화�
 
 ---
 
-## 리액트에서 API 사용하기
+## 📌 리액트에서 API 사용하기
 
 해당 프로젝트에서는 무료로 API를 이용할 수 있는 [JSONPlaceholder](https://jsonplaceholder.typicode.com/)사이트를 이용한다.
 
@@ -218,3 +223,23 @@ comment tap을 클릭해서 접속한 URL 주소를 이용한다.
 ```
 https://jsonplaceholder.typicode.com/comments
 ```
+
+<br>
+
+---
+
+## 📌 React Developer Tools
+
+![](https://velog.velcdn.com/images/ninto_2/post/93fbef3f-37cc-45d5-a491-f7345d1a0b3a/image.png)
+
+React Developer Tools는 Chrome의 확장 도구이다.
+
+크롬 웹 스토어에서 확장도구에서 설치할 수 있다.
+도구 더보기에서 확장 프로그램에 들어가서 확장프로그램 사용을 ON 시켜준다.
+세부정보에서 사이트 엑세스를 모든 사이트에서로 바꿔주어야 한다.
+그 다음, 파일 URL에 대한 액세스 허용한다.
+
+![](https://velog.velcdn.com/images/ninto_2/post/71ca8229-dbaa-4a4e-ae31-eb4ee3a38271/image.png)
+
+이런식으로 개발자도구에 들어가서 Component로 확인할 수 있다.
+각각의 컴포넌트가 어떤 데이터와 props, state를 가지고 있는지 직관적으로 확인할 수 있다.
