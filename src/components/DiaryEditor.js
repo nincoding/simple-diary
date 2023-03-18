@@ -28,9 +28,14 @@
  * 
  * Create 기능구현을 위해 App에서 props로 onCreate라는 상태변화함수를 전달받는다.
  * handleSubmit이라는 이벤트핸들러 함수가 실행될때 상태를 저장했으므로 이 함수를 다시 수정해준다.
+ * 
+ * 최적화 수정하기 - 컴포넌트가 업데이트되는 상황은 부모컴포넌트가 리렌더되거나 자신이 변경되거나 자신이 받은 prop이 변경되는 경우이다.
+ * 이 DiaryEditor컴포넌트는 onCreate라는 일기저장하기 버튼을 눌렀을때 일기를 생성하는 함수하나만 전달받고 있다.
+ * React.memo를 이용해서 컴포넌트를 최적화해보자. 하지만 컴포넌트의 코드가 80라인 이상이나 존재하고 있다.
+ * 굉장히 내려가기 까다롭기때문에 컴포넌트에 직접치지말고 맨 아래 exprot 문에 묶어주면된다.
  */
 
-import { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 
 // 강의에서는 .DiaryEditor 로 css파일에서 스타일링했지만 스타일드 컴포넌트 연습겸 활용해보기
@@ -71,6 +76,18 @@ const SubmitButton = styled.button`
 
 // App에서 만들어준 상태변화함수인 onCreate함수를 전달받는다.
 const DiaryEditor = ({onCreate}) => {
+  // useEffect를 활용해서 언제 렌더링이 일어나는지 콘솔을 이용해서 확인해보자.
+  // 렌더가 2번이나 발생했다. 그이유는 App컴포넌트를 확인하면 답을 찾을 수 있다.
+  // data의 초기값이 빈배열인 상태에서 한번 렌더가 일어난다.
+  // 그 다음 컴포넌트가 Mount된 시점에 호출한 결과를 setData에 전달하면서 data state가 바뀌게되면서 렌더된다.
+  // 즉, DiaryEditor가 전달받는 onCreate함수도 App컴포넌트가 2번 렌더링되면서 다시 생성되게 되는것이다.
+  // onCreate안에 있는 데이터는 같은 값이긴 하지만 비원시타입의 자료는 React.memo에서 기본적으로 얕은비교로 일어나기때문에
+  // prop으로 전달받고 있는 onCreate가 App컴포넌트가 렌더링이 될때마다 계속 다시 만들어져서 계속 렌더링이 발생하고 있는 것이다.
+  // 결론적으로 {onCreate}이 함수가 재생성되지 않아야만 DiaryEditor컴포넌트를 React.memo와 함께 최적화할 수 있다.
+  // App컴포넌트에서 onCreate함수가 다시 생성되지 않게 만들어주자.
+  useEffect(() => {
+    console.log(`DiaryEditor 렌더`)
+  })
 
   // 작성자로부터 state를 받는다. 초기값에는 입력을 안한 상태이니까 공백 문자열을 넣어준다.
   // input의 value로 해당 state를 props로 전달한다. 그럼 아무리 입력해도 input의 값이 바뀌지 않는다.
@@ -235,4 +252,4 @@ const DiaryEditor = ({onCreate}) => {
   )
 }
 
-export default DiaryEditor;
+export default React.memo(DiaryEditor);

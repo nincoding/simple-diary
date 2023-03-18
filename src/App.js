@@ -2,7 +2,7 @@ import './App.css';
 import DiaryEditor from './components/DiaryEditor';
 import DiaryList from './components/DiaryList';
 //import dummyData from './data/dummyDate';
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 //import LifeCycle from './components/LifeCycle';
 //import OptimizeTest from './components/OptimizeTest';
 
@@ -89,7 +89,15 @@ function App() {
   // 이 일기데이터를 추가할 수 있는 함수를 DiaryEditor에 props로 전달해준다.
   // 해당 작성데이터는 아직 상태를 모르기때문에 필요한 파라미터를 받아준다.
   // 새로운 아이템을 만들기위해 id가 필요한데 useRef를 사용해서 만들어준다.
-  const onCreate = (author, content, emotion) => {
+
+  // 여기에 useMemo를 사용하면 안된다. 그 이유는 함수가 아닌 값을 반환하기 때문이다.
+  // 우리가 원하는건 onCreate를 원본그대로 DiaryEditor에 보내주는 것이다.
+  // 여기서 useCallback을 사용할 수 있다. - onCreate가 다시 생성되지 않게 만들기
+  // 두번째 인자로는 빈배열을 전달해서 Mount되는 시점에 한번만 만들고 그 다음부터는 첫번째 만들었던 함수를 그대로 재사용할 수 있도록 구현함
+  // 빈배열로 전달해줬더니 일기를 추가했을때 기존에 있던 일기가 다 없어지고 새롭게 생성한 일기만 남게되었다.
+  // 이런 상황에서는 함수형 업데이트를 사용하면 된다.
+  // setData 상태변화함수에 값을 전달하고 그 값이 새로운 state의 값이 되는데 여기에 함수를 전달해도된다.
+  const onCreate = useCallback((author, content, emotion) => {
     const created_date = new Date().getTime();
     const newItem = {
       author,
@@ -104,8 +112,12 @@ function App() {
 
     // 원래 배열에 들어있던 data를 스프레드로 사용해서 나열하고, 새로운 아이템을 추가해준다.
     //setData([...data, newItem]) 그런데 새로운 아이템을 맨 위로 올리고 싶으므로 순서를 바꾼다.
-    setData([newItem, ...data]);
-  }
+    //setData([newItem, ...data]);
+
+    // 이런식으로 상태변화함수에 함수를 전달하는 것을 함수형 업데이트라고 한다.
+    // 이렇게 되면 디펜던시 array를 빈배열로 넣어줘도 setData에서 data를 인자를 통해 참조할 수 있게되면서 뎁스를 비울수있도록 도와준다.
+    setData((data) => [newItem, ...data]);
+  }, []);
 
   // Delete기능 구현을 위한 함수 - DiaryItem에서 delete버튼 클릭시 App의 data state가 뺀 값으로 변경되어야한다.
   // 어떤 Id를 가지고 있는지 App에서는 모르기때문에 전달을 받아준다.

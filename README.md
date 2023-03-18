@@ -74,10 +74,13 @@ npm i styled-components
 - [ ] React App 성능 최적화와 도구 사용
 
   - React Developer Tools RDT 개발자 도구 사용하기
+  - React Developer Tools를 이용해 어떤 컴포넌트가 최적화의 대상인지 찾아낸다.
+    (DiaryList에서 일기삭제 시 DiaryEditor가 리렌더 되지않도록 수정한다.)
   - useMemo를 이용한 연산 결과 재사용하기
   - 메모이제이션 기법을 적용한 연산최적화
   - 현재 일기 데이터를 분석하는 함수를 제작하고, 해당 함수가 일기 데이터의 길이가 변화하지 않을때 값을 다시 계산하지 않도록 구현
   - React.memo를 이용한 컴포넌트 재사용
+  - useCallback을 이용한 함수 재사용
 
 - React 컴포넌트 트리에 전역 데이터 공급하기
 
@@ -349,3 +352,20 @@ export default React.memo(MyComponent, areEqual);
 React.memo가 두번째인자로 `areEqual`이라는 함수인자를 받는것을 확인할 수 있는데, 이 함수는 이전의 prop와 이후의 prop를 받고 동일한 값이라면 true와 그렇지않다면 false를 반환하는 비교함수로서 사용하기 때문이다.
 
 이 `areEqual`함수를 이용해서 기존의 얕은비교를 하게하지않고 여기에서 코드를 변경하여 깊은비교를 구현한다면 true를 가질때 렌더링하지 않게하고 false를 가질때 렌더링하게 할 수도 있다.
+
+<br>
+
+### useCallback 최적화
+
+```js
+// 첫번째 인자로 callback을 두번째 인자로 의존성 배열을 받는다.
+const memoizedCallback = useCallback(() => {
+  doSomething(a, b);
+}, [a, b]);
+```
+
+useCallback의 기능은 메모이제이션된 콜백을 반환합니다.
+값을 반환하는 것이 아니라, 첫번째 인자로 전달된 콜백을 다시 반환한다고 생각할 수 있다.
+주의할 것은 메모이제이션된 콜백을 반환한다는 점이다.
+
+즉, 두번째 값인 의존성 배열이 변화하지 않으면 첫번째 인자로 전달된 콜백함수를 재사용할 수 있도록 도와주는 리액트 hooks이다.
