@@ -3,6 +3,7 @@ import DiaryEditor from './components/DiaryEditor';
 import DiaryList from './components/DiaryList';
 //import dummyData from './data/dummyDate';
 import { useState, useRef } from 'react';
+import LifeCycle from './components/LifeCycle';
 
 /**
  * 
@@ -78,8 +79,10 @@ function App() {
     );
   }
 
+  // LifeCycle 실험을 위해 가장위해 LifeCycle 컴포넌트를 렌더해준다.
   return (
     <div className="App">
+      <LifeCycle />
       <DiaryEditor onCreate={onCreate}/>
       <DiaryList diaryList={data} onRemove={onRemove} onEdit={onEdit}/>
     </div>
