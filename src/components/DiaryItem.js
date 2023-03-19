@@ -18,7 +18,8 @@
  */
 
 import styled from "styled-components";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
+import DiaryDispatchContext from "../context/DiaryDispatchContext";
 
 const DiaryItemWrap = styled.div`
   background-color: rgb(240, 240, 240);
@@ -63,7 +64,11 @@ const EditForm = styled.textarea`
 // DiaryItem은 React.memo로 감싼다고 최적화가 이루어지는 컴포넌트가 아니다.
 // 왜냐하면 onRemove, onEdit는 data state가 변화하면 재생성될 수 밖에 없는 함수들이다.
 // 따라서 App 컴포넌트에서 위 함수들을 최적화해줘야한다.
-const DiaryItem = ({ author, content, created_date, emotion, id, onRemove, onEdit }) => {
+
+//const DiaryItem = ({ author, content, created_date, emotion, id, onRemove, onEdit }) => {
+const DiaryItem = ({ author, content, created_date, emotion, id }) => {
+
+  const { onRemove, onEdit } = useContext(DiaryDispatchContext);
 
   /*
   useEffect(() => {

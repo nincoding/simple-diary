@@ -2,6 +2,17 @@
 
 리액트로 만드는 간단한 일기장
 
+**초기 App 구조**
+
+![](https://velog.velcdn.com/images/ninto_2/post/ec2aee44-457d-48e0-b310-78df8d13b680/image.png)
+
+App 컴포넌트에서 사용하지 않는 onRemove, onEdit과 같은 상태변화함수들은 props 드릴링을 거치게 된다.
+이런 문제를 해결하기 위해 Provider라는 공급자 컴포넌트를 만들어서 자신이 가지고 있는 모든 data를 준다.
+
+**리팩토링 App 구조**
+
+![](https://velog.velcdn.com/images/ninto_2/post/20e2070b-40f8-46ac-b3e3-ac4befe55d03/image.png)
+
 ## 사용한 명령어
 
 ```js
@@ -83,12 +94,17 @@ npm i styled-components
   - useCallback을 이용한 함수 재사용
   - 아이템 리렌더링 최적화하기
 
-- useReducer를 사용한 복잡한 상태변화 로직 분리
+### 🍀 useReducer를 사용한 복잡한 상태변화 로직 분리
+
+- [x] App컴포넌트의 상태변화함수를 컴포넌트 밖으로 분리시키기
 
   - reducer, dispatch, action의 흐름파악
-  - App컴포넌트의 상태변화함수를 컴포넌트 밖으로 분리시키기
 
-- React 컴포넌트 트리에 전역 데이터 공급하기
+### 🍀 React 컴포넌트 트리에 전역 데이터 공급하기
+
+- [ ] Context API를 이용한 컴포넌트 트리 데이터 공급
+
+  - props 드릴링 문제를 해결한다.
 
 <br>
 
@@ -428,3 +444,23 @@ Action은 곧 상태변화라고 생각할 수 있다. (즉, 상태변화를 설
 
 이런식으로 reducer함수는 action의 type에 따라서 각각 다른 값을 반환하고 있다.
 (이 반환되는 값은 새로운 state가 된다)
+
+<br>
+
+### Context API 생성하기
+
+```js
+// Context 생성
+
+const MyContext = React.createContext(defaultValue);
+
+// Context Provider를 통한 데이터 공급
+
+<MyContext.Provider value={전역으로 전달하고자 하는 값}>
+  {/*이 Context안에 위치할 자식 컴포넌트들*/}
+<MyContext.Provider />
+```
+
+props로 받는 value라는 값을 이 안에 있는 자식 컴포넌트들에게 전달하는 방식이다.
+값을 전달받을 수 있는 자식 컴포넌트의 수는 제한이 없다.
+Provider의 자식으로 존재하기만 하면 모든 컴포넌트는 전달하는 값을 사용할 수 있다.

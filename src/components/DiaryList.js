@@ -1,4 +1,7 @@
+import { useContext } from 'react';
 import styled from 'styled-components';
+import DiaryDispatchContext from '../context/DiaryDispatchContext';
+import DiaryStateContext from '../context/DiaryStateContext';
 import DiaryItem from './DiaryItem';
 
 const DiaryListWrap = styled.div`
@@ -26,13 +29,22 @@ const DiaryListH2 = styled.h2`
  * onDelete함수를 전달받아서 DiaryItem한테 전달해준다.
  * 이런걸 props 드릴링이라고 한다.
  * App에서 전달받은 onEdit함수를 받고, DiaryItem에 전달해준다.
+ * 
+ * 이 diaryList라는 data를 context에서 공급을 받으면 되기때문에 prop을 지워준다.
  */
 
-const DiaryList = ({ diaryList, onRemove, onEdit }) => {
+//const DiaryList = ({ diaryList, onRemove, onEdit }) => {
+  // onRemove, onEdit은 DiaryList에서 사용하는게 아니기 때문에 지워준다.
+  //const DiaryList = ({ onRemove, onEdit }) => {
+  const DiaryList = () => {
 
   // console로 확인해보면 일기 데이터가 잘 출력된다.
   // 전달받은 데이터가 배열이기 때문에 length를 이용해서 diaryList.length와 같이 데이터의 개수를 출력할 수 있다.
   //console.log(diaryList);
+
+  // context에서 값을 꺼내오기 위해서는 useContext라는 hook을 사용하면 된다.
+  // 여기에는 한가지 인자로 context를 전달해야한다. 값을 꺼내고 싶은 컨텍스트
+  const diaryList = useContext(DiaryStateContext);
 
   return (
     <DiaryListWrap>
@@ -58,7 +70,8 @@ const DiaryList = ({ diaryList, onRemove, onEdit }) => {
        // 그리고 스프레드 연산자를 통해서 it이 가지고 있는 모든 데이터들을 전달해준다.
 
        // Delete기능 구현을 위해 onDelete함수는 2다리를 거쳐서 내려갔다.
-        diaryList.map((it) => <DiaryItem key={it.id} {...it} onRemove={onRemove} onEdit={onEdit}/>
+        //diaryList.map((it) => <DiaryItem key={it.id} {...it} onRemove={onRemove} onEdit={onEdit}/> 프롭스 드릴링을 제거해준다.
+        diaryList.map((it) => <DiaryItem key={it.id} {...it} />
         /*
           <div key={it.id}>
             <div >작성자 : {it.author}</div>

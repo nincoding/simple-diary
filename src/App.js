@@ -6,6 +6,8 @@ import { useState, useRef, useEffect, useMemo, useCallback, useReducer } from 'r
 //import LifeCycle from './components/LifeCycle';
 //import OptimizeTest from './components/OptimizeTest';
 import reducer from './reducers/reducer';
+import DiaryStateContext from './context/DiaryStateContext';
+import DiaryDispatchContext from './context/DiaryDispatchContext';
 
 /**
  * 
@@ -38,7 +40,14 @@ import reducer from './reducers/reducer';
  * 먼저 getData함수는 initData를 적절히 가공한다음에 한방에 데이터를 초기화하고 있다.
  * 이런 경우 initData로 정의할 수 있다. INIT
  * 그 다음 onCreate 상태변화함수가 있다. 이 경우는 CREATE로,
- * 그 다음 onRemove, onEdit의 함수가 있다. REMOVE 와 EDIT으로
+ * 그 다음 onRemove, onEdit의 함수가 있다. REMOVE 와 EDIT으로 설정한다.
+ * 
+ * 일기데이터의 데이터를 전역적으로 공급할 수 있도록 도와줄 컴포넌트를 만들어준다.
+ * 상태변화함수들을 context를 통해서 공급할 수 있도록 해보자.
+ * 이 Provider도 컴포넌트이기 때문에 prop이 바껴버리면 재생성된다.
+ * data와 함께 상태변화함수들을 같이 넣어주게되면 최적화가 다 풀려버리게 된다.
+ * 이럴땐 문맥 context를 중첩으로 사용하면된다.
+ * state를 변화시키는 dispatch 함수들을 내보내고 싶다면 새로운 context를 생성해주면된다.
  */
 
 
@@ -252,17 +261,38 @@ function App() {
   const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
 
   // LifeCycle 실험을 위해 가장위해 LifeCycle 컴포넌트를 렌더해준다.
+
+  // 리턴하는 부분의 최상위 태그에 DiaryStateContext의 Provider 컴포넌트로 바꿔준다.
+  // 데이터를 공급할때에는 이 Provider에게 value라는 prop으로 data를 내려줘야한다.
+  // DiaryList컴포넌트에서 context에서 데이터를 전달받고있기 때문에 diaryList를 더이상 prop으로 전달해줄 필요가 없다.
+  // data만을 관리하는 DiaryStateContext의 바로 자식으로 dispatch함수들을 관리하는 DiaryDispatchContext.Provider를 중첩으로 감싸준다.
+  // App에서 사용하고 있는 onCreate, onRemove, onEdit을 하나의 값으로 묶어서 prop으로 전달해준다.
+  // useMemo를 활용해서 묶어준다. 뎁스를 빈배열로 전달해서 재생성을 막아준다.
+  // 이렇게 생성한 memoizedDispatches를 DiaryDispatchContext.Provider의 value로 전달해준다.
+  // useMemo를 사용한 이유는 App 컴포넌트가 재생성될때 이렇게 묶어준 객체도 다시 재생성되기 때문이다. (최적화 풀리지않게 해줌)
+  const memoizedDispatches = useMemo(() => {
+    return { onCreate, onRemove, onEdit }
+  }, []);
+
   return (
-    <div className="App">
-      {/*<LifeCycle />*/}
-      {/*<OptimizeTest />*/}
-      <DiaryEditor onCreate={onCreate}/>
-      <div>전체일기 : {data.length} </div>
-      <div>기분 좋은 일기 개수: {goodCount} </div>
-      <div>기분 나쁜 일기 개수: {badCount} </div>
-      <div>기분 좋은 일기 비율 : {goodRatio} </div>
-      <DiaryList diaryList={data} onRemove={onRemove} onEdit={onEdit}/>
-    </div>
+    <DiaryStateContext.Provider value={data}>
+      <DiaryDispatchContext.Provider value={memoizedDispatches}>
+        <div className="App">
+        {/*<LifeCycle />*/}
+        {/*<OptimizeTest />*/}
+        {/*<DiaryEditor onCreate={onCreate}/>*/}
+        <DiaryEditor />
+        <div>전체일기 : {data.length} </div>
+        <div>기분 좋은 일기 개수: {goodCount} </div>
+        <div>기분 나쁜 일기 개수: {badCount} </div>
+        <div>기분 좋은 일기 비율 : {goodRatio} </div>
+        {/*
+        <DiaryList diaryList={data} onRemove={onRemove} onEdit={onEdit}/>
+      */}
+      <DiaryList />
+      </div>
+      </DiaryDispatchContext.Provider>
+    </DiaryStateContext.Provider>
   );
 }
 

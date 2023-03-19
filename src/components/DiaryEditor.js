@@ -35,8 +35,9 @@
  * 굉장히 내려가기 까다롭기때문에 컴포넌트에 직접치지말고 맨 아래 exprot 문에 묶어주면된다.
  */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import styled from 'styled-components';
+import DiaryDispatchContext from '../context/DiaryDispatchContext';
 
 // 강의에서는 .DiaryEditor 로 css파일에서 스타일링했지만 스타일드 컴포넌트 연습겸 활용해보기
 // 테두리에 1px 직선 그레이선 추가
@@ -75,8 +76,14 @@ const SubmitButton = styled.button`
 `;
 
 // App에서 만들어준 상태변화함수인 onCreate함수를 전달받는다.
-const DiaryEditor = ({onCreate}) => {
-  // useEffect를 활용해서 언제 렌더링이 일어나는지 콘솔을 이용해서 확인해보자.
+//const DiaryEditor = ({onCreate}) => {
+  const DiaryEditor = () => {
+
+    // App에서 onCreate를 전달받지 않으므로 context에서 가져온다.
+    // DiaryDispatchContext에서 받고있는 함수는 3개이기 때문에 비구조할당으로 가져와야된다.
+    const { onCreate } = useContext(DiaryDispatchContext);
+
+// useEffect를 활용해서 언제 렌더링이 일어나는지 콘솔을 이용해서 확인해보자.
   // 렌더가 2번이나 발생했다. 그이유는 App컴포넌트를 확인하면 답을 찾을 수 있다.
   // data의 초기값이 빈배열인 상태에서 한번 렌더가 일어난다.
   // 그 다음 컴포넌트가 Mount된 시점에 호출한 결과를 setData에 전달하면서 data state가 바뀌게되면서 렌더된다.
