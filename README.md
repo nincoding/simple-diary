@@ -104,7 +104,7 @@ npm i styled-components
 
 ### 🍀 React 컴포넌트 트리에 전역 데이터 공급하기
 
-- [ ] Context API를 이용한 컴포넌트 트리 데이터 공급
+- [x] Context API를 이용한 컴포넌트 트리 데이터 공급
 
   - props 드릴링 문제를 해결한다.
 
