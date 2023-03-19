@@ -83,6 +83,11 @@ npm i styled-components
   - useCallback을 이용한 함수 재사용
   - 아이템 리렌더링 최적화하기
 
+- useReducer를 사용한 복잡한 상태변화 로직 분리
+
+  - reducer, dispatch, action의 흐름파악
+  - App컴포넌트의 상태변화함수를 컴포넌트 밖으로 분리시키기
+
 - React 컴포넌트 트리에 전역 데이터 공급하기
 
 <br>
@@ -370,3 +375,56 @@ useCallback의 기능은 메모이제이션된 콜백을 반환합니다.
 주의할 것은 메모이제이션된 콜백을 반환한다는 점이다.
 
 즉, 두번째 값인 의존성 배열이 변화하지 않으면 첫번째 인자로 전달된 콜백함수를 재사용할 수 있도록 도와주는 리액트 hooks이다.
+
+<br>
+
+### useReducer로 상태변화 로직 분리하기
+
+![](https://velog.velcdn.com/images/ninto_2/post/902c9d5d-75d4-4c3a-b6e9-369a02470d61/image.png)
+
+가장 복잡하고 많은 상태 로직을 가진 컴포넌트는 App컴포넌트입니다.
+이 App 컴포넌트는 onCreate, onEdit, onRemove 등의 많은 상태변화함수가 존재했습니다.
+
+이 상태변화함수들은 컴포넌트 내에만 존재해야했고, 그 이유는 상태를 업데이트하기 위해선 기존의 상태를 참조해야했기 때문입니다.
+
+상태변화함수에서 인자로 전달받고있는 data들은 전부 컴포넌트안에 있는 data를 가져다 써야하기 때문에 함수 밖에서는 처리할 수 없었습니다.
+
+하지만 컴포넌트의 코드가 길어지고 무거워지는건 리팩토링이 필요한 부분입니다.
+
+이 상태변화로직을 함수의 밖으로 분리하는 기능을 추가했습니다.
+
+이러한 기능을 **useReducer**를 이용하여 컴포넌트에서 상태변화 로직 분리작업을 수행할 수 있습니다.
+
+![](https://velog.velcdn.com/images/ninto_2/post/35ac52df-2176-4739-bb66-6f61bf7133af/image.png)
+
+useReducer의 사용성을 알아보기 위해 각각에 1부터 10000까지의 수를 더할 수 있는 카운트를 생성했다.
+
+이런식으로 각각 분리해서 작성을 하면 컴포넌트의 길이가 길어지고 복잡해질 수 밖에 없게 된다.
+
+![](https://velog.velcdn.com/images/ninto_2/post/d567917b-63b5-4696-806b-b09c155a8827/image.png)
+
+이런 상황에서 useReducer의 기능을 이용하면, 왼쪽에 보이는 reducer라는 함수를 컴포넌트 외부로 분리해서 다양한 상태변화 로직을 컴포넌트 외부로 분리해서 switch case문법처럼 쉽게 바꿀 수 있게된다.
+
+useReducer는 useState를 대체할 수 있는 훌륭한 기능이다.
+useState를 사용하듯이 배열을 반환하게 되고, 사용할때는 비구조화할당을 통해 사용할 수 있다.
+
+첫번째로 반환받게되는 0번째 인덱스는 state이다. 1번째 인덱스는 상태를 변화시키는 action을 발생시키는 함수이다.(dispatch)
+
+useReducer함수를 호출할때, reducer라는 함수를 꼭 전달해주어야 한다.
+이 reducer는 dispatch가 상태변화를 일으킬때, 일어난 상태변화를 처리해주는 역할을 수행한다.
+
+그 다음에 useReducer함수에 두번째로 전달하는 인자는 count라는 state의 초기값이 되게 된다.
+
+이 dispatch함수를 호출하면서 객체를 전달한다.
+객체에는 꼭 type이라는 프로퍼티가 들어있게 되는데, 이 객체가 바로 Action객체이다.
+
+Action은 곧 상태변화라고 생각할 수 있다. (즉, 상태변화를 설명할 객체)
+
+이 dispatch가 호출될 때 상태변화가 일어나야 하고 이때 전달되는 Action객체는 reducer로 날아가게 된다.
+
+이 reducer함수는 이 dispatch가 호출될 때 처리를 하기 위해서 호출되게 되는데 첫번째 인자로는 state(현재 가장 최신의 state)를 두번째 인자로는 action(dispatch를 호출할때 전달해줬던 action 객체)을 전달받는다.
+
+![](https://velog.velcdn.com/images/ninto_2/post/3e654d9d-dec0-40b7-a9e2-f90e44b7a156/image.png)
+
+이런식으로 reducer함수는 action의 type에 따라서 각각 다른 값을 반환하고 있다.
+(이 반환되는 값은 새로운 state가 된다)

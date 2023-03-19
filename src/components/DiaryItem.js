@@ -65,10 +65,12 @@ const EditForm = styled.textarea`
 // 따라서 App 컴포넌트에서 위 함수들을 최적화해줘야한다.
 const DiaryItem = ({ author, content, created_date, emotion, id, onRemove, onEdit }) => {
 
+  /*
   useEffect(() => {
     // 19번째부터 0번 아이템까지 모두 다 렌더링 되고 있는 문제 상황을 발견했다.
     console.log(`${id}번째 아이템 렌더`);
   })
+  */
 
   // 수정하기 버튼을 눌렀을때 상태를 저장하고 있을 state를 만든다.
   // 이 isEdit의 상태는 기본값으로 false를 넣어준다.

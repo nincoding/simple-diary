@@ -1,10 +1,11 @@
-import './App.css';
+import './css/App.css';
 import DiaryEditor from './components/DiaryEditor';
 import DiaryList from './components/DiaryList';
 //import dummyData from './data/dummyDate';
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback, useReducer } from 'react';
 //import LifeCycle from './components/LifeCycle';
 //import OptimizeTest from './components/OptimizeTest';
+import reducer from './reducers/reducer';
 
 /**
  * 
@@ -31,15 +32,29 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
  * 
  * React.memo를 이용해서 재사용 컴포넌트사용으로 렌더링 최적화를 구현해보자.
  * OptimizeTest 컴포넌트를 만들어서 App에서 import해준다.
+ * 
+ * App컴포넌트의 상태변화함수를 컴포넌트 밖으로 분리시키기위해선 기존에 사용했던 useState를 주석처리해준다.
+ * App컴포넌트의 data에 어떤 action들이 필요한지 알아보자.
+ * 먼저 getData함수는 initData를 적절히 가공한다음에 한방에 데이터를 초기화하고 있다.
+ * 이런 경우 initData로 정의할 수 있다. INIT
+ * 그 다음 onCreate 상태변화함수가 있다. 이 경우는 CREATE로,
+ * 그 다음 onRemove, onEdit의 함수가 있다. REMOVE 와 EDIT으로
  */
+
 
 // comment API를 사용하기 위한 URL
 // https://jsonplaceholder.typicode.com/comments
 
+
 function App() {
 
   // 이 상태는 일기데이터를 배열로 저장할 것이기 때문에 배열로 초기값을 설정한다.
-  const [ data, setData ] = useState([]);
+  // App컴포넌트의 일기데이터 state를 useState hooks가 아니라 useReducer hooks를 통해서 관리한다.
+  //const [ data, setData ] = useState([]);
+
+  // 비구조할당의 첫번째 인자는 state, 두번째인자는 dispatch이다.
+  // useReducer의 첫번째 인자는 상태변화를 처리할 함수인 reducer이고, 두번째 인자는 state의 초기값이다.
+  const [ data, dispatch ] = useReducer(reducer, []);
 
   // 처음에는 0번 인덱스부터 시작하도록 설정해준다.
   // dataId.current는 어떤 DOM도 선택하지않고 그냥 0이라는 값을 가리키게 되어있다.
@@ -74,7 +89,12 @@ function App() {
     }) 
     
     // 위처럼 생성한 데이터를 setData를 통해 data의 상태값으로 넣어주게되면 API로 받아온 데이터를 렌더할 수 있게된다.
-    setData(initData);
+    //setData(initData);
+
+    // 여기에서 어떤 action을 발생시키겠다 적어준다.
+    // INIT데이터에 필요한 데이터를 전달해준다.
+    // 이런식으로 작성해주면 reducer는 action을 전달받는데 type은 INIT이고, data는 initData로 상태를 새롭게 반환할 수 있다.
+    dispatch({type: 'INIT', data: initData});
   }
 
   // 두번째 인자에 빈배열을 설정하면 Mount되는 시점에 콜백이 실행된다.
@@ -98,6 +118,20 @@ function App() {
   // 이런 상황에서는 함수형 업데이트를 사용하면 된다.
   // setData 상태변화함수에 값을 전달하고 그 값이 새로운 state의 값이 되는데 여기에 함수를 전달해도된다.
   const onCreate = useCallback((author, content, emotion) => {
+
+    // 이 onCreate함수에 dispatch를 맨 위에 호출해보자.
+    // newItem에 들어있는 프로퍼티를 그대로 써주면 된다.
+    // 이 created_date는 reducer에서 직접 만들어서 사용하자.
+    dispatch({
+      type: 'CREATE', 
+      data: {
+      author,
+      content,
+      emotion,
+      id : dataId.current,
+    }})
+
+    /*
     const created_date = new Date().getTime();
     const newItem = {
       author,
@@ -106,6 +140,7 @@ function App() {
       created_date,
       id : dataId.current
     }
+    */
 
     // 다음 일기 아이템은 다시 렌더링되서 만들어질때 + 1을 해줄 수 있도록 더해준다.
     dataId.current += 1;
@@ -116,7 +151,7 @@ function App() {
 
     // 이런식으로 상태변화함수에 함수를 전달하는 것을 함수형 업데이트라고 한다.
     // 이렇게 되면 디펜던시 array를 빈배열로 넣어줘도 setData에서 data를 인자를 통해 참조할 수 있게되면서 뎁스를 비울수있도록 도와준다.
-    setData((data) => [newItem, ...data]);
+    //setData((data) => [newItem, ...data]);
   }, []);
 
   // Delete기능 구현을 위한 함수 - DiaryItem에서 delete버튼 클릭시 App의 data state가 뺀 값으로 변경되어야한다.
@@ -127,6 +162,12 @@ function App() {
 
   // 최적화를 위해 useCallback으로 묶어준다음 의존성배열에 빈배열을 넣어준다.
   const onRemove = useCallback((targetId) => {
+
+    // 여기서도 dispatch를 바로 일으켜준다.
+    // data로는 어떤 아이디를 지우라는 targetId를 전달해준다.
+    dispatch({type: 'REMOVE', targetId})
+
+
     // targetId를 제외한 새로운 배열을 만들어줘서 setData함수에 전달해줘서 data 배열을 바꿔줘야한다.
     //console.log(`${targetId}가 삭제되었습니다.`);
     // 원래 data 리스트에서 filter를 해준다.
@@ -141,7 +182,7 @@ function App() {
     // setData에 전달하는 파라미터 data에 최신 state가 전달되기 때문이다.
     // 최신 data를 사용하기 위해서는 함수형 업데이트의 인자부분을 사용해주어야 한다.
     // 그리고 리턴부분의 데이터를 사용해야 업데이트가 된다.
-    setData(data => data.filter((it) => it.id !== targetId));
+    //setData(data => data.filter((it) => it.id !== targetId));
   }, [])
 
   // prop으로 전달되어서 DiaryItem에서 사용될 함수이다. 매개변수로 무엇을 어떻게 수정할지를 받아와야한다.
@@ -150,6 +191,11 @@ function App() {
   
   // 이 친구도 똑같이 useCallback에 빈 배열을 디펜던시에 넣어준다.
   const onEdit = useCallback((targetId, newContent) => {
+
+    // dispatch를 바로 호출해주고 targetId, newContent를 두전달해준다.
+    dispatch({type: 'EDIT', targetId, newContent});
+
+
     // data에 map을 돌려서 각각 모든 요소들이 targetId와 일치하는지 검사한다. (일치하는 아이디를 갖는 원소는 딱 하나밖에 없다.)
     // 아이디가 일치하게 되면 해당 원소는 수정대상이 되는 원소가 된다.
     // 일치하는 경우 content프로퍼티의 값을 newContent의 값으로 업데이트 시켜주면 된다.
@@ -160,9 +206,11 @@ function App() {
     );
     함수형으로 업데이트 시켜준다.
     */
+   /*
     setData((data) =>
       data.map((it) => it.id === targetId ? { ...it, content: newContent,} : it )
     );
+    */
   }, []);
 
   // 감정의 기분을 구분할 수 있는 함수를 만든다. 데이터 분석이라는 함수
