@@ -2,6 +2,8 @@
 
 리액트로 만드는 간단한 일기장
 
+![간단한 일기장 프로젝트](https://user-images.githubusercontent.com/112839119/226212938-19ea82a9-eafe-473c-ac3d-ec49a9fda613.gif)
+
 **초기 App 구조**
 
 ![](https://velog.velcdn.com/images/ninto_2/post/ec2aee44-457d-48e0-b310-78df8d13b680/image.png)
